@@ -1,0 +1,4 @@
+runtime: java17
+instance_class: F4
+manual_scaling:
+  instances: 2
