@@ -6,4 +6,4 @@ COPY pom.xml .
 COPY src ./src
 
 # Build a release artifact.
-RUN mvn package -DskipTests
+RUN java -jar target/Shopping-App-0.0.1-SNAPSHOT.jar
