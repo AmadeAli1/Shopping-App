@@ -5,7 +5,7 @@ POST https://shopping-app-362812.el.r.appspot.com/api/account/register
 Content-Type: application/json
 
 {
-  "email": "ali@gmail.com",
+  "email": "aliamade@gmail.com",
   "username": "Amade Ali",
   "password": "amade12",
   "cityname": "maputo",
