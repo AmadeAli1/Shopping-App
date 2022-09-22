@@ -28,7 +28,7 @@ class UserService(
 
         val existsById = existsById(user.id!!)
         println(existsById)
-        if (existsById){
+        if (!existsById){
             throw ApiException("This id already in use!!")
         }
 
