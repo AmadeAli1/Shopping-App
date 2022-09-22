@@ -14,7 +14,6 @@ import java.io.File
 @SpringBootApplication
 class ShoppingAppApplication(properties: GcpProperties,environment: Environment) {
     init {
-        println("CALLLEDDD: ${environment["credentials"]}")
         val file = File("src/main/resources/google-credentials.json")
         file.writeText(environment["credentials"]!!)
         properties.credentials!!.location = FileUrlResource(file.absolutePath)
