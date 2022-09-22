@@ -9,6 +9,8 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.*
@@ -92,7 +94,16 @@ class UserService(
 
     private suspend fun existsByEmail(email: String) = userRepository.existsByEmail(email)
 
-    suspend fun findById(id: String) = userRepository.findById(id)
+    private suspend fun findById(id: String) = userRepository.findById(id)
+
+    suspend fun getUser(id: String): ResponseEntity<out Any> {
+        val user = findById(id)
+        if (user != null) {
+            val location = getLocationDelivery(user.id!!)
+            return ResponseEntity.ok(UserDTO(user, location))
+        }
+        return ResponseEntity("User not found!", HttpStatus.BAD_GATEWAY)
+    }
 
     private fun encoderPassword(password: String) = encoder.encode(password)
 

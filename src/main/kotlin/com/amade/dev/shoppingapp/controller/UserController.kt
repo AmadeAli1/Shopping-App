@@ -29,6 +29,10 @@ class UserController(
         return ResponseEntity.ok(user)
     }
 
+    @GetMapping("/{id}")
+    suspend fun getUser(@PathVariable("id") id: String): ResponseEntity<out Any> {
+        return service.getUser(id)
+    }
 
     @GetMapping("/confirmation")
     suspend fun confirmToken(@RequestParam("token", required = true) token: String): ResponseEntity<out Any> {
