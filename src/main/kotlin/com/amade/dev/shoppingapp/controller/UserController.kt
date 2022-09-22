@@ -22,16 +22,10 @@ class UserController(
 
     @GetMapping("/login")
     suspend fun login(
-        @RequestParam("email", required = true) email: String,
-        @RequestParam("password", required = true) password: String,
+        @RequestParam("id", required = true) id: String,
     ): ResponseEntity<UserDTO> {
-        val user = service.login(email, password)
+        val user = service.login(id)
         return ResponseEntity.ok(user)
-    }
-
-    @GetMapping("/{id}")
-    suspend fun getUser(@PathVariable("id") id: String): ResponseEntity<out Any> {
-        return service.getUser(id)
     }
 
     @GetMapping("/confirmation")
