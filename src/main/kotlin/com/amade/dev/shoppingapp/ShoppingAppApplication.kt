@@ -4,20 +4,19 @@ import com.google.cloud.spring.autoconfigure.core.GcpProperties
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.core.env.Environment
+import org.springframework.core.env.get
 import org.springframework.core.io.FileUrlResource
 import org.springframework.scheduling.annotation.EnableAsync
 import java.io.File
 
 @EnableAsync
 @SpringBootApplication
-class ShoppingAppApplication(properties: GcpProperties) {
-    @Value("\${credentials}")
-    var config: String? = null
-
+class ShoppingAppApplication(properties: GcpProperties,environment: Environment) {
     init {
-        println("CALLLEDDD: $config")
+        println("CALLLEDDD: ${environment["credentials"]}")
         val file = File("src/main/resources/google-credentials.json")
-        file.writeText(config!!)
+        file.writeText(environment["credentials"]!!)
         properties.credentials!!.location = FileUrlResource(file.absolutePath)
     }
 }
