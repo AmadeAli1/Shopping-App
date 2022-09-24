@@ -17,7 +17,6 @@ class ShoppingAppApplication(properties: GcpProperties, environment: Environment
         file.writeText(environment["credentials"]!!)
         properties.credentials!!.location = FileUrlResource(file.absolutePath)
 
-
     }
 }
 

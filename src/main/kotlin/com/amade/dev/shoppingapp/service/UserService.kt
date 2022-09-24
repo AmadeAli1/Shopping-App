@@ -26,15 +26,9 @@ class UserService(
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun save(user: User): UserDTO {
 
-        val existsById = existsById(user.id!!)
-        println(existsById)
-        if (!existsById){
-            throw ApiException("This id already in use!!")
-        }
-
         if (!existsByEmail(user.email)) {
             val insert = userRepository.insert(
-                id = user.id,
+                id = user.id!!,
                 email = user.email,
                 username = user.username,
                 cityname = user.cityname,
@@ -50,6 +44,11 @@ class UserService(
             } else {
                 throw ApiException("An error occurred")
             }
+        }
+
+        val existsById = existsById(user.id!!)
+        if (existsById){
+            throw ApiException("This id already in use!!")
         }
 
         throw ApiException("This email already exists")
