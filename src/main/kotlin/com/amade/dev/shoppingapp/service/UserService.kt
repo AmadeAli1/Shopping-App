@@ -9,14 +9,12 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
-    private val encoder: PasswordEncoder,
     private val locationRepository: DeliveryLocationRepository,
     private val emailService: EmailService,
     private val userTokenService: UserTokenService,
@@ -27,43 +25,38 @@ class UserService(
 
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun save(user: User): UserDTO {
+
+        val existsById = existsById(user.id!!)
+        println(existsById)
+        if (!existsById){
+            throw ApiException("This id already in use!!")
+        }
+
         if (!existsByEmail(user.email)) {
-            return if (user.id == null) {
-                try {
-                    val saved = userRepository.save(entity = user.copy(password = encoderPassword(user.password)))
-                    val token = userTokenService.save(saved.id!!)
-                    GlobalScope.launch { sendConfirmationToken(saved, token) }
-                    val location = getLocationDelivery(saved.id)
-                    UserDTO(saved, location)
-                } catch (e: Exception) {
-                    throw ApiException(e.message)
-                }
+            val insert = userRepository.insert(
+                id = user.id,
+                email = user.email,
+                username = user.username,
+                cityname = user.cityname,
+                mobile = user.cellphone,
+                isenable = true
+            )
+            return if (insert == 1) {
+                val saved = findById(user.id)!!
+                val token = userTokenService.save(saved.id!!)
+                GlobalScope.launch { sendConfirmationToken(saved, token) }
+                val location = getLocationDelivery(saved.id)
+                UserDTO(user, location)
             } else {
-                val insert = userRepository.insert(
-                    id = user.id,
-                    email = user.email,
-                    username = user.username,
-                    password = encoderPassword(user.password),
-                    cityname = user.cityname,
-                    mobile = user.cellphone,
-                    isenable = true
-                )
-                return if (insert == 1) {
-                    val saved = findById(user.id)!!
-                    val token = userTokenService.save(saved.id!!)
-                    GlobalScope.launch { sendConfirmationToken(saved, token) }
-                    val location = getLocationDelivery(saved.id)
-                    UserDTO(user, location)
-                } else {
-                    throw ApiException("An error occurred")
-                }
+                throw ApiException("An error occurred")
             }
         }
+
         throw ApiException("This email already exists")
     }
 
-    suspend fun login(email: String, password: String): UserDTO {
-        val user = findByEmail(email)
+    suspend fun login(id: String): UserDTO {
+        val user = findById(id)
         if (user != null) {
             if (!user.isEnable) {
                 if (!userTokenService.isTokenVerified(userId = user.id!!)) {
@@ -73,30 +66,29 @@ class UserService(
                 }
                 throw ApiException("Your account is not enable, open your email inbox and confirm your account!")
             } else {
-                val decode = decoderPassword(user.password, password)
-                if (decode) {
-                    val location = getLocationDelivery(user.id!!)
-                    return UserDTO(user, location)
-                } else {
-                    throw ApiException("Invalid Email/Password")
-                }
+                val location = getLocationDelivery(user.id!!)
+                return UserDTO(user, location)
             }
         } else {
-            throw ApiException("Email not found")
+            throw ApiException("User not found")
+        }
+    }
+
+    suspend fun update(user: User): UserDTO {
+        return try {
+            val saved = userRepository.save(entity = user)
+            val location = getLocationDelivery(saved.id!!)
+            UserDTO(saved, location)
+        } catch (e: Exception) {
+            throw ApiException(e.message)
         }
     }
 
     suspend fun confirmToken(token: String) = userTokenService.confirmToken(token)
-
-    private suspend fun findByEmail(email: String) = userRepository.findByEmail(email)
-
     private suspend fun existsByEmail(email: String) = userRepository.existsByEmail(email)
 
-    suspend fun findById(id: String) = userRepository.findById(id)
-
-    private fun encoderPassword(password: String) = encoder.encode(password)
-
-    private fun decoderPassword(encoderPassword: String, password: String) = encoder.matches(password, encoderPassword)
+    private suspend fun existsById(id: String) = userRepository.existsById(id)
+    private suspend fun findById(id: String) = userRepository.findById(id)
 
     private suspend fun sendConfirmationToken(user: User, token: UUID) {
         emailService.sendEmail(

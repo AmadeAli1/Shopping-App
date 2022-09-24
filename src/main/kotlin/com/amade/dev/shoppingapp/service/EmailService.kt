@@ -22,7 +22,7 @@ class EmailService(private val javaMailSender: JavaMailSender) {
             sampleEmail.setText(body!!)
             javaMailSender.send(sampleEmail)
         } catch (e: Exception) {
-            throw ApiException("An error occurred while sending the email to $sendToEmail")
+            throw ApiException("An error occurred while sending the email to $sendToEmail :: ${e.message}")
         }
     }
 
