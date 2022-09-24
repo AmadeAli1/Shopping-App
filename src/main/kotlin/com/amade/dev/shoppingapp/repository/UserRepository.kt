@@ -17,7 +17,7 @@ interface UserRepository : CoroutineCrudRepository<User, String> {
         id: String,
         email: String,
         username: String,
-        cityname: String,
+        cityname: String?,
         mobile: String?,
     ): Int
 

@@ -5,12 +5,7 @@ import com.amade.dev.shoppingapp.model.user.User
 import com.amade.dev.shoppingapp.model.user.dto.UserDTO
 import com.amade.dev.shoppingapp.repository.DeliveryLocationRepository
 import com.amade.dev.shoppingapp.repository.UserRepository
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class UserService(
@@ -25,7 +20,7 @@ class UserService(
                 id = user.id!!,
                 email = user.email,
                 username = user.username,
-                cityname = user.cityname,
+                cityname = if (user.city == null) null else user.city.name,
                 mobile = user.cellphone,
             )
             return if (insert == 1) {
