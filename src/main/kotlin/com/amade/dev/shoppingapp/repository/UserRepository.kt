@@ -12,14 +12,13 @@ import org.springframework.stereotype.Repository
 interface UserRepository : CoroutineCrudRepository<User, String> {
 
     @Modifying
-    @Query("INSERT INTO usuario (id, email, username, cityname, mobilenumber, isenable) VALUES (:?1,:?2,:?3,:?4,:?5,:?6)")
+    @Query("INSERT INTO usuario (id, email, username, cityname, mobilenumber) VALUES (:?1,:?2,:?3,:?4,:?5)")
     suspend fun insert(
         id: String,
         email: String,
         username: String,
         cityname: String,
         mobile: String?,
-        isenable: Boolean,
     ): Int
 
     @Modifying

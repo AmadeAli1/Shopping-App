@@ -27,7 +27,6 @@ class UserService(
                 username = user.username,
                 cityname = user.cityname,
                 mobile = user.cellphone,
-                isenable = true
             )
             return if (insert == 1) {
                 val saved = findById(user.id)!!
