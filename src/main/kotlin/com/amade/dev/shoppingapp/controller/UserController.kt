@@ -28,10 +28,4 @@ class UserController(
         return ResponseEntity.ok(user)
     }
 
-    @GetMapping("/confirmation")
-    suspend fun confirmToken(@RequestParam("token", required = true) token: String): ResponseEntity<out Any> {
-        return service.confirmToken(token)
-    }
-
-
 }

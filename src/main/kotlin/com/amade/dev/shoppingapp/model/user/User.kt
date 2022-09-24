@@ -13,6 +13,5 @@ data class User(
     @field:NotBlank @Column("username") val username: String,
     @field:NotBlank @field:Email @Column("email") val email: String,
     @field:NotBlank @Column("cityName") val cityname: String,
-    @Column("mobileNumber") var cellphone: String? = null,
-    @Column("isEnable") var isEnable: Boolean,
+    @Column("mobileNumber") var cellphone: String? = null
 )

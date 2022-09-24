@@ -44,7 +44,6 @@ class UserTokenService(
                 throw ApiException("The Token has expired")
             } else {
                 val user = userRepository.findById(id = token.userId)!!
-                user.isEnable = true
                 token.confirmedAt = currentTimer
                 token.valid = false
                 userRepository.save(user)

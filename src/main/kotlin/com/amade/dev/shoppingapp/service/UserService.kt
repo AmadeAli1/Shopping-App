@@ -16,14 +16,8 @@ import java.util.*
 class UserService(
     private val userRepository: UserRepository,
     private val locationRepository: DeliveryLocationRepository,
-    private val emailService: EmailService,
-    private val userTokenService: UserTokenService,
 ) {
 
-    @Value(value = "\${url.confirmation.token}")
-    val confirmTokenUrl: String? = null
-
-    @OptIn(DelicateCoroutinesApi::class)
     suspend fun save(user: User): UserDTO {
 
         if (!existsByEmail(user.email)) {
@@ -37,9 +31,7 @@ class UserService(
             )
             return if (insert == 1) {
                 val saved = findById(user.id)!!
-                val token = userTokenService.save(saved.id!!)
-                GlobalScope.launch { sendConfirmationToken(saved, token) }
-                val location = getLocationDelivery(saved.id)
+                val location = getLocationDelivery(saved.id!!)
                 UserDTO(user, location)
             } else {
                 throw ApiException("An error occurred")
@@ -47,7 +39,7 @@ class UserService(
         }
 
         val existsById = existsById(user.id!!)
-        if (existsById){
+        if (existsById) {
             throw ApiException("This id already in use!!")
         }
 
@@ -57,17 +49,9 @@ class UserService(
     suspend fun login(id: String): UserDTO {
         val user = findById(id)
         if (user != null) {
-            if (!user.isEnable) {
-                if (!userTokenService.isTokenVerified(userId = user.id!!)) {
-                    val token = userTokenService.save(user.id)
-                    sendConfirmationToken(user, token)
-                    throw ApiException("Your account is not enable, open your email inbox and confirm your account!")
-                }
-                throw ApiException("Your account is not enable, open your email inbox and confirm your account!")
-            } else {
-                val location = getLocationDelivery(user.id!!)
-                return UserDTO(user, location)
-            }
+            val location = getLocationDelivery(user.id!!)
+            return UserDTO(user, location)
+
         } else {
             throw ApiException("User not found")
         }
@@ -83,21 +67,10 @@ class UserService(
         }
     }
 
-    suspend fun confirmToken(token: String) = userTokenService.confirmToken(token)
     private suspend fun existsByEmail(email: String) = userRepository.existsByEmail(email)
 
     private suspend fun existsById(id: String) = userRepository.existsById(id)
     private suspend fun findById(id: String) = userRepository.findById(id)
-
-    private suspend fun sendConfirmationToken(user: User, token: UUID) {
-        emailService.sendEmail(
-            sendToEmail = user.email, subject = "Confirm account", body = """
-                        Hi ${user.username} thank you for your account at Market
-                        To confirm your account: ${confirmTokenUrl}?token=${token}
-                        Valid Token for 3 HOURS!
-                    """.trimIndent()
-        )
-    }
 
     private suspend fun getLocationDelivery(userId: String) = locationRepository.findByUserId(userId)
 
