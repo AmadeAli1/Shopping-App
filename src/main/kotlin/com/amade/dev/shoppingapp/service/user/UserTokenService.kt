@@ -1,9 +1,9 @@
-package com.amade.dev.shoppingapp.service
+package com.amade.dev.shoppingapp.service.user
 
 import com.amade.dev.shoppingapp.exception.ApiException
 import com.amade.dev.shoppingapp.model.user.UserToken
-import com.amade.dev.shoppingapp.repository.TokenRepository
-import com.amade.dev.shoppingapp.repository.UserRepository
+import com.amade.dev.shoppingapp.repository.user.TokenRepository
+import com.amade.dev.shoppingapp.repository.user.UserRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime

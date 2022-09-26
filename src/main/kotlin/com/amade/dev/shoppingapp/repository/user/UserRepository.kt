@@ -1,6 +1,6 @@
 @file:Suppress("SpringDataRepositoryMethodReturnTypeInspection")
 
-package com.amade.dev.shoppingapp.repository
+package com.amade.dev.shoppingapp.repository.user
 
 import com.amade.dev.shoppingapp.model.user.User
 import org.springframework.data.r2dbc.repository.Modifying

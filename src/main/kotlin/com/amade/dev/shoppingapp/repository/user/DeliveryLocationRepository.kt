@@ -1,6 +1,6 @@
 @file:Suppress("SpringDataRepositoryMethodReturnTypeInspection")
 
-package com.amade.dev.shoppingapp.repository
+package com.amade.dev.shoppingapp.repository.user
 
 import com.amade.dev.shoppingapp.model.user.DeliveryLocation
 import kotlinx.coroutines.flow.Flow

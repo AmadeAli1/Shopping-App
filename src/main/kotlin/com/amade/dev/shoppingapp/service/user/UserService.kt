@@ -1,10 +1,10 @@
-package com.amade.dev.shoppingapp.service
+package com.amade.dev.shoppingapp.service.user
 
 import com.amade.dev.shoppingapp.exception.ApiException
 import com.amade.dev.shoppingapp.model.user.User
 import com.amade.dev.shoppingapp.model.user.dto.UserDTO
-import com.amade.dev.shoppingapp.repository.DeliveryLocationRepository
-import com.amade.dev.shoppingapp.repository.UserRepository
+import com.amade.dev.shoppingapp.repository.user.DeliveryLocationRepository
+import com.amade.dev.shoppingapp.repository.user.UserRepository
 import org.springframework.stereotype.Service
 
 @Service

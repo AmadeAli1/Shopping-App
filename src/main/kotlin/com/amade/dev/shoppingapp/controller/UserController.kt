@@ -2,7 +2,7 @@ package com.amade.dev.shoppingapp.controller
 
 import com.amade.dev.shoppingapp.model.user.User
 import com.amade.dev.shoppingapp.model.user.dto.UserDTO
-import com.amade.dev.shoppingapp.service.UserService
+import com.amade.dev.shoppingapp.service.user.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*

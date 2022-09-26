@@ -10,7 +10,7 @@ import org.springframework.web.bind.support.WebExchangeBindException
 class ValidationExceptionHandler {
 
     @ExceptionHandler(WebExchangeBindException::class)
-    suspend fun invalidRequest(e: WebExchangeBindException): ResponseEntity<List<Message>> {
+    suspend fun isValid(e: WebExchangeBindException): ResponseEntity<List<Message>> {
         val errors = e.bindingResult.allErrors.stream().map {
             lateinit var error: Message
             if (it is FieldError) {

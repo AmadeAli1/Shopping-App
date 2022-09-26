@@ -1,5 +1,6 @@
 package com.amade.dev.shoppingapp.security
 
+import com.fasterxml.jackson.databind.json.JsonMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -33,5 +34,11 @@ class SecurityWeb {
             .disable()
         return http.build()
     }
+
+    @Bean
+    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
+
+    @Bean
+    fun jsonObject(): JsonMapper = JsonMapper()
 
 }
