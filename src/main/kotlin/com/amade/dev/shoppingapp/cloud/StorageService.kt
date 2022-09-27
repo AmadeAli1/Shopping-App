@@ -33,7 +33,7 @@ class StorageService(
     }
 
     suspend fun save(file: FilePart, subDirectory: String): String {
-        val filePath = "$subDirectory/${UUID.randomUUID()}"
+        val filePath = "company/$subDirectory/${UUID.randomUUID()}"
         val blobId = BlobId.of(bucketName, filePath)
         val blobInfo = BlobInfo.newBuilder(blobId)
             .setContentType(MediaType.ANY_IMAGE_TYPE.type())
@@ -56,9 +56,9 @@ class StorageService(
     }
 
     suspend fun delete(filePath: String): Boolean {
-        val blobId = storage.get(BlobId.of(bucketName, filePath)).blobId
-        if (blobId != null) {
-            return storage.delete(blobId)
+        val blob = storage.get(BlobId.of(bucketName, filePath))
+        if (blob != null) {
+            return storage.delete(blob.blobId)
         }
         throw ApiException("Image not found!")
     }

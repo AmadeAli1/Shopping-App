@@ -1,6 +1,8 @@
 package com.amade.dev.shoppingapp.model.publisher
 
 import com.amade.dev.shoppingapp.model.user.City
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.hibernate.validator.constraints.Length
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
@@ -8,6 +10,7 @@ import org.springframework.data.relational.core.mapping.Table
 import java.util.*
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
 
@@ -16,13 +19,13 @@ data class Company(
     @Id @Column("uid") val uid: UUID? = null,
     @field:Email @field:NotBlank @Column("email") val email: String,
     @Column("logoUrl") val logoUrl: String? = null,
-    @field:NotBlank @Length(min = 6) @Column("password") val password: String,
+    @field:JsonProperty(access = JsonProperty.Access.WRITE_ONLY) @field:NotBlank @Length(min = 6) @Column("password") val password: String,
     @Column("subscribers") val subscribers: Int,
     @field:Size(min = 1) @Column("phoneNumbers") val phoneNumbers: Array<String>,
     @field:NotBlank @Column("description") val description: String,
-    @field:NotBlank @Column("companyName") val companyName: String,
+    @field:NotBlank @Column("name") val companyName: String,
     @field:NotBlank @Column("locationName") val locationName: String,
-    @field:NotBlank @Column("city") val city: City,
+    @field:NotNull @Column("city") val city: City,
 ) {
 
 
@@ -38,6 +41,11 @@ data class Company(
         locationName = "",
         city = City.Maputo
     )
+
+    @JsonIgnore
+    fun getPath(): String {
+        return "$uid/$companyName/${logoUrl!!.substringAfterLast("/")}"
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

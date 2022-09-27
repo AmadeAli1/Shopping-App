@@ -25,18 +25,19 @@ class CompanyService(
     private val environment: Environment,
 ) {
 
-    suspend fun save(body: Company, logoImage: FilePart): CompanyDTO {
+    suspend fun save(companyBody: Company, addressBody: CompanyAddress, logoImage: FilePart): CompanyDTO {
         var company: Company? = null
         var logoPath: String? = null
         try {
-            return if (!existsByEmail(body.email)) {
-                val encryptedPassword = encode(body.password)
-                company = companyRepository.save(body.copy(password = encryptedPassword))
+            return if (!existsByEmail(companyBody.email)) {
+                val encryptedPassword = encode(companyBody.password)
+                company = companyRepository.save(companyBody.copy(password = encryptedPassword))
                 val subDirectory = "${company.uid}/${company.companyName}".trim()
                 logoPath = service.save(logoImage, subDirectory)
                 val linkDownload = environment["public.download.link"]!! + logoPath
                 company = companyRepository.save(company.copy(logoUrl = linkDownload))
-                CompanyDTO(company)
+                val address = saveAddress(addressBody.copy(companyId = company.uid))
+                CompanyDTO(company, address)
             } else {
                 throw ApiException("This email already in use!")
             }
@@ -89,9 +90,18 @@ class CompanyService(
     }
 
     suspend fun login(email: String, password: String): CompanyDTO {
-
-
-        return CompanyDTO(Company())
+        val view = companyRepository.getById(email)
+        if (view != null) {
+            try {
+                if (decode(view.password, password)) {
+                    return view.toCompanyDTO()
+                }
+                throw ApiException("Invalid password")
+            } catch (e: Exception) {
+                throw ApiException(e.message)
+            }
+        }
+        throw ApiException("This account not exists! try another data")
     }
 
     private suspend fun encode(password: String) = passwordEncoder.encode(password)
