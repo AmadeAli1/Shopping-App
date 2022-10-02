@@ -2,6 +2,7 @@ package com.amade.dev.shoppingapp.service.publisher
 
 import com.amade.dev.shoppingapp.cloud.StorageService
 import com.amade.dev.shoppingapp.exception.ApiException
+import com.amade.dev.shoppingapp.utils.ApiResponse
 import com.amade.dev.shoppingapp.model.publisher.Company
 import com.amade.dev.shoppingapp.model.publisher.CompanyAddress
 import com.amade.dev.shoppingapp.model.publisher.CompanyImage
@@ -9,6 +10,9 @@ import com.amade.dev.shoppingapp.model.publisher.dto.CompanyDTO
 import com.amade.dev.shoppingapp.repository.publisher.CompanyAddressRepository
 import com.amade.dev.shoppingapp.repository.publisher.CompanyImageRepository
 import com.amade.dev.shoppingapp.repository.publisher.CompanyRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.withContext
 import org.springframework.core.env.Environment
 import org.springframework.core.env.get
 import org.springframework.http.codec.multipart.FilePart
@@ -32,7 +36,7 @@ class CompanyService(
             return if (!existsByEmail(companyBody.email)) {
                 val encryptedPassword = encode(companyBody.password)
                 company = companyRepository.save(companyBody.copy(password = encryptedPassword))
-                val subDirectory = "${company.uid}/${company.companyName}".trim()
+                val subDirectory = "company/${company.uid}".trim()
                 logoPath = service.save(logoImage, subDirectory)
                 val linkDownload = environment["public.download.link"]!! + logoPath
                 company = companyRepository.save(company.copy(logoUrl = linkDownload))
@@ -54,31 +58,44 @@ class CompanyService(
         return companyAddressRepository.save(address)
     }
 
-    suspend fun saveCompanyImage(body: CompanyImage, companyName: String, list: List<FilePart>): List<CompanyImage> {
-        if (list.isEmpty()) throw ApiException("Required equal or great than one")
+    suspend fun saveCompanyImages(body: CompanyImage, images: List<FilePart>): List<CompanyImage> {
+        if (images.isEmpty()) throw ApiException("Required equal or great than one")
+        val uploadSuccess = mutableListOf<CompanyImage>()
+        val subDirectory = "company/${body.companyId}"
         try {
-            return list.map {
-                val pathId = service.save(it, "${body.companyId}/$companyName")
-                val linkDownload = environment["public.download.link"]!! + companyName
-                companyImageRepository.save(entity = body.copy(path = pathId, imageUrl = linkDownload))
+            return images.map {
+                val pathId = service.save(it, subDirectory)
+                val linkDownload = environment["public.download.link"]!! + pathId
+                val saved = companyImageRepository.save(entity = body.copy(path = pathId, imageUrl = linkDownload))
+                uploadSuccess.add(saved)
+                saved
             }
         } catch (e: Exception) {
+            withContext(Dispatchers.Default) {
+                uploadSuccess.forEach {
+                    companyImageRepository.delete(it)
+                    service.delete(it.path!!)
+                }
+            }
             throw ApiException(e.message)
         }
-
     }
 
-    suspend fun deleteImage(filePath: String): Boolean {
-        return service.delete(filePath)
+    suspend fun deleteCompanyImage(filePath: String): ApiResponse<Boolean> {
+        val deleteImageByPath = companyImageRepository.deleteImageByPath(filePath)
+        if (deleteImageByPath != 0) {
+            return ApiResponse(service.delete(filePath))
+        }
+        throw ApiException("Image not removed!!")
     }
 
-    suspend fun deleteCompany(email: String, password: String): String {
+    suspend fun deleteCompany(email: String, password: String): ApiResponse<String> {
         val company = companyRepository.findByEmail(email)
         if (company != null) {
             try {
                 if (decode(company.password, password)) {
                     if (companyRepository.deleteByUid(company.uid!!) != 0) {
-                        return "Your account has been deleted!"
+                        return ApiResponse("Your account has been deleted!")
                     }
                     throw ApiException("An error occurred when trying delete your account")
                 }
@@ -94,7 +111,8 @@ class CompanyService(
         if (view != null) {
             try {
                 if (decode(view.password, password)) {
-                    return view.toCompanyDTO()
+                    val images = companyImageRepository.getAllByCompanyId(view.uid!!)
+                    return view.toCompanyDTO().copy(images = images.toList())
                 }
                 throw ApiException("Invalid password")
             } catch (e: Exception) {
@@ -113,5 +131,6 @@ class CompanyService(
     private suspend fun existsByEmail(email: String): Boolean {
         return companyRepository.existsByEmail(email)
     }
+
 
 }

@@ -44,7 +44,7 @@ data class Company(
 
     @JsonIgnore
     fun getPath(): String {
-        return "$uid/$companyName/${logoUrl!!.substringAfterLast("/")}"
+        return "company/$uid/${logoUrl!!.substringAfterLast("/")}"
     }
 
     override fun equals(other: Any?): Boolean {

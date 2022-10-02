@@ -33,7 +33,7 @@ class StorageService(
     }
 
     suspend fun save(file: FilePart, subDirectory: String): String {
-        val filePath = "company/$subDirectory/${UUID.randomUUID()}"
+        val filePath = "$subDirectory/${UUID.randomUUID()}"
         val blobId = BlobId.of(bucketName, filePath)
         val blobInfo = BlobInfo.newBuilder(blobId)
             .setContentType(MediaType.ANY_IMAGE_TYPE.type())
@@ -63,14 +63,20 @@ class StorageService(
         throw ApiException("Image not found!")
     }
 
-    suspend fun update(filePath: String, file: FilePart) {
-        val blobId = storage.get(BlobId.of(bucketName, filePath)).blobId
-        if (blobId != null) {
-            val blobInfo = BlobInfo.newBuilder(blobId)
-                .setContentType(MediaType.ANY_IMAGE_TYPE.type())
-                .setBlobId(blobId)
-                .build()
-            storage.create(blobInfo, file.toByteArray())
+    suspend fun update(filePath: String, file: FilePart): String {
+        try {
+            val blobId = storage.get(BlobId.of(bucketName, filePath)).blobId
+            if (blobId != null) {
+                val blobInfo = BlobInfo.newBuilder(blobId)
+                    .setContentType(MediaType.ANY_IMAGE_TYPE.type())
+                    .setBlobId(blobId)
+                    .build()
+                val blob = storage.create(blobInfo, file.toByteArray())
+                if (blob != null) return filePath else throw ApiException("Failure in update this file ${file.name()}")
+            }
+            throw ApiException("File not found!!")
+        } catch (e: Exception) {
+            throw ApiException(e.message)
         }
     }
 
