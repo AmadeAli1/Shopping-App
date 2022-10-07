@@ -5,6 +5,7 @@ import com.amade.dev.shoppingapp.model.user.User
 import com.amade.dev.shoppingapp.model.user.dto.UserDTO
 import com.amade.dev.shoppingapp.repository.user.DeliveryLocationRepository
 import com.amade.dev.shoppingapp.repository.user.UserRepository
+import com.amade.dev.shoppingapp.utils.ApiResponse
 import org.springframework.stereotype.Service
 
 @Service
@@ -48,6 +49,15 @@ class UserService(
 
         } else {
             throw ApiException("User not found")
+        }
+    }
+
+    suspend fun updateToken(token: String, userId: String): ApiResponse<Boolean> {
+        try {
+            val result = userRepository.updateToken(token, userId) != 0
+            return ApiResponse(result)
+        } catch (e: Exception) {
+            throw ApiException(e.message)
         }
     }
 

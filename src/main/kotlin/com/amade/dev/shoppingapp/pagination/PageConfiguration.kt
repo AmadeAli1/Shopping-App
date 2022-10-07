@@ -9,14 +9,31 @@ class PageConfiguration<T> {
     ): Page<T> {
         val limit = 20.0
         val totalItems = repository.total()
-        val paginas = totalItems.div(limit).plus(1).toInt()
+        val pages = totalItems.div(limit).plus(1).toInt()
         val start = if (page == 1) {
             0
         } else {
             (page - 1) * limit.toInt()
         }
-        return onComplete(totalItems, paginas, start)
+        return onComplete(totalItems, pages, start)
     }
+
+    suspend fun config(
+        total: Long,
+        page: Int,
+        onComplete: suspend (total: Long, pages: Int, start: Int) -> Page<T>,
+    ): Page<T> {
+        val limit = 20.0
+        val pages = total.div(limit).plus(1).toInt()
+        val start = if (page == 1) {
+            0
+        } else {
+            (page - 1) * limit.toInt()
+        }
+        return onComplete(total, pages, start)
+    }
+
+
 
     fun getPage(data: List<T>, paginas: Int, totalItems: Long, page: Int, hasNext: Boolean): Page<T> {
         return Page<T>(

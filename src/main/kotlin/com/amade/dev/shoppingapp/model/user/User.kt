@@ -11,6 +11,7 @@ data class User(
     @Id @Column("id") val id: String? = null,
     @field:NotBlank @Column("username") val username: String,
     @field:NotBlank @field:Email @Column("email") val email: String,
+    @Column("notificationToken") val notificationToken: String? = null,
     @Column("cityName") val city: City?,
     @Column("mobileNumber") var cellphone: String? = null,
 )

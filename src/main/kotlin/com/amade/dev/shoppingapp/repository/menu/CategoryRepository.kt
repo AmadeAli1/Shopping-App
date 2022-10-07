@@ -1,3 +1,5 @@
+@file:Suppress("SpringDataRepositoryMethodReturnTypeInspection")
+
 package com.amade.dev.shoppingapp.repository.menu
 
 import com.amade.dev.shoppingapp.model.menu.Category

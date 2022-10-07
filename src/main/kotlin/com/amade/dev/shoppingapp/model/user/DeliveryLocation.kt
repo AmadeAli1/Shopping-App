@@ -6,7 +6,7 @@ import org.springframework.data.relational.core.mapping.Table
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
-@Table("Location")
+@Table("UserLocation")
 data class DeliveryLocation(
     @Id @Column("id") val id: Int? = null,
     @field:NotBlank @Column("user_fk") val userId: String,

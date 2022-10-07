@@ -22,6 +22,10 @@ interface UserRepository : CoroutineCrudRepository<User, String> {
     ): Int
 
     @Modifying
+    @Query("UPDATE usuario set notificationtoken=$1 where id=$2")
+    suspend fun updateToken(token: String, userId: String): Int
+
+    @Modifying
     @Query("DELETE FROM USUARIO WHERE id=:$1")
     suspend fun deleteUserById(id: String): Int
 

@@ -12,10 +12,10 @@ data class Category(
     @Id
     @Column("id") val id: Int? = null,
     @field:NotBlank @Column("name") val name: String,
+    @field:NotBlank @Column("description") val description: String,
     @field:JsonIgnore @Column("imageUrl") var path: String?,
     @Column("total") var totalProducts: Int = 0,
 ) {
-
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     fun getImageUrl(): String {
@@ -23,6 +23,9 @@ data class Category(
     }
 
 
-    constructor() : this(id = null, name = "", path = "")
+    constructor() : this(
+        id = null, name = "", description =
+        "", path = ""
+    )
 
 }

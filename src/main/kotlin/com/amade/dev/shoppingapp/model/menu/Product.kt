@@ -13,7 +13,8 @@ import javax.validation.constraints.Positive
 data class Product(
     @Id @Column("uid") val uid: UUID? = null,
     @Column("discount") val discount: Float? = null,
-    @Column("state") var state: State = State.Available,
+    @Column("state") var available: State = State.Available,
+    @Column("cookTime") val cookTime: String,
     @Column("deliveryState") val deliveryState: State? = State.Available,
     @field:NotBlank @Column("name") val name: String,
     @field:NotNull @field:Positive @Column("price") val price: Float,
@@ -32,7 +33,8 @@ data class Product(
     constructor() : this(
         uid = null,
         discount = null,
-        state = State.Available,
+        cookTime = "",
+        available = State.Available,
         name = "",
         price = -1f,
         likes = 0,
