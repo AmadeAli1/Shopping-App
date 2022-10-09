@@ -2,15 +2,18 @@ package com.amade.dev.shoppingapp.service.publisher
 
 import com.amade.dev.shoppingapp.cloud.StorageService
 import com.amade.dev.shoppingapp.exception.ApiException
-import com.amade.dev.shoppingapp.utils.ApiResponse
 import com.amade.dev.shoppingapp.model.publisher.Company
 import com.amade.dev.shoppingapp.model.publisher.CompanyAddress
 import com.amade.dev.shoppingapp.model.publisher.CompanyImage
 import com.amade.dev.shoppingapp.model.publisher.dto.CompanyDTO
+import com.amade.dev.shoppingapp.pagination.Page
+import com.amade.dev.shoppingapp.pagination.PageConfiguration
 import com.amade.dev.shoppingapp.repository.publisher.CompanyAddressRepository
 import com.amade.dev.shoppingapp.repository.publisher.CompanyImageRepository
 import com.amade.dev.shoppingapp.repository.publisher.CompanyRepository
+import com.amade.dev.shoppingapp.utils.ApiResponse
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import org.springframework.core.env.Environment
@@ -132,5 +135,43 @@ class CompanyService(
         return companyRepository.existsByEmail(email)
     }
 
+    suspend fun findPageByName(page: Int, name: String): Page<CompanyDTO> {
+        val pageConfiguration = PageConfiguration<CompanyDTO>()
+        val count = companyRepository.count()
+        lateinit var data: List<CompanyDTO>
+        return pageConfiguration.config(total = count, page) { total, paginas, start ->
+            data = companyRepository.findByPageWithName(start = start, name = name).map {
+                val images = companyImageRepository.getAllByCompanyId(it.uid!!).toList()
+                it.toCompanyDTO().copy(images = images)
+            }.toList()
+            val next = (data.size == 20).and(total > page * 20)
+            return@config pageConfiguration.getPage(
+                data = data,
+                pages = paginas,
+                totalItems = total,
+                page = page,
+                hasNext = next
+            )
+        }
+    }
+    suspend fun findAnyPage(page: Int): Page<CompanyDTO> {
+        val pageConfiguration = PageConfiguration<CompanyDTO>()
+        val count = companyRepository.count()
+        lateinit var data: List<CompanyDTO>
+        return pageConfiguration.config(total = count, page) { total, pages, start ->
+            data = companyRepository.findByPage(start = start).map {
+                val images = companyImageRepository.getAllByCompanyId(it.uid!!).toList()
+                it.toCompanyDTO().copy(images = images)
+            }.toList()
+            val next = (data.size == 20).and(total > page * 20)
+            return@config pageConfiguration.getPage(
+                data = data,
+                pages = pages,
+                totalItems = total,
+                page = page,
+                hasNext = next
+            )
+        }
+    }
 
 }

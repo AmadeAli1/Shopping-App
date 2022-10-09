@@ -1,12 +1,13 @@
 package com.amade.dev.shoppingapp.controller
 
 import com.amade.dev.shoppingapp.exception.ApiException
-import com.amade.dev.shoppingapp.utils.ApiResponse
 import com.amade.dev.shoppingapp.model.publisher.Company
 import com.amade.dev.shoppingapp.model.publisher.CompanyAddress
 import com.amade.dev.shoppingapp.model.publisher.CompanyImage
 import com.amade.dev.shoppingapp.model.publisher.dto.CompanyDTO
+import com.amade.dev.shoppingapp.pagination.Page
 import com.amade.dev.shoppingapp.service.publisher.CompanyService
+import com.amade.dev.shoppingapp.utils.ApiResponse
 import com.amade.dev.shoppingapp.validation.ValidationRequest
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -104,5 +105,17 @@ class CompanyController(
         return service.deleteCompanyImage(path)
     }
 
+    @GetMapping
+    suspend fun findWithPagination(
+        @RequestParam("page", defaultValue = "1") page: Int,
+        @RequestParam("name", required = false, defaultValue = "") name: String,
+    ): ResponseEntity<Page<CompanyDTO>> {
+        val response: Page<CompanyDTO> = if (name.isBlank()) {
+            service.findAnyPage(page = page)
+        } else {
+            service.findPageByName(page = page, name = name)
+        }
+        return ResponseEntity(response, HttpStatus.OK)
+    }
 
 }

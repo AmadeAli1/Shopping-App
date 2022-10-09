@@ -121,12 +121,12 @@ class ProductService(
     suspend fun findByPage(page: Int): Page<ProductDto> {
         val pageConfiguration = PageConfiguration<ProductDto>()
         lateinit var data: List<ProductDto>
-        return pageConfiguration.config(repository = repository, page) { total, paginas, start ->
+        return pageConfiguration.config(repository = repository, page) { total, pages, start ->
             data = repository.findByPage(start = start).map { it.toProductDTO() }.toList()
             val next = (data.size == 20).and(total > page * 20)
             return@config pageConfiguration.getPage(
                 data = data,
-                pages = paginas,
+                pages = pages,
                 totalItems = total,
                 page = page,
                 hasNext = next
