@@ -34,18 +34,18 @@ class PageConfiguration<T> {
     }
 
 
-
-    fun getPage(data: List<T>, paginas: Int, totalItems: Long, page: Int, hasNext: Boolean): Page<T> {
+    fun getPage(data: List<T>, pages: Int, totalItems: Long, page: Int, hasNext: Boolean): Page<T> {
         return Page<T>(
             data = data,
             pageSize = data.size,
             pageNumber = page,
-            totalPages = paginas,
+            totalPages = pages,
             totalItems = totalItems,
             maxPageSize = 20,
             nextPage = if (!hasNext) null else page + 1,
             prevPage = if (page == 1) null else page - 1
         )
     }
+
 
 }

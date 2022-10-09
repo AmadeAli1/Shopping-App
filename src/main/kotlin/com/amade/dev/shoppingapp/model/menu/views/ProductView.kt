@@ -19,6 +19,7 @@ data class ProductView(
     @Column("name") val name: String,
     @Column("price") val price: Float,
     @Column("likes") val likes: Int,
+    @Column("unlikes") val unlikes: Int,
     @Column("companyId") val companyId: UUID?,
     @Column("categoryId") val categoryId: Int,
     @Column("categoryName") val categoryName: String,
@@ -38,12 +39,13 @@ data class ProductView(
                 name,
                 price,
                 likes,
+                unlikes,
                 imageUrl,
                 description,
                 categoryId,
                 companyId
             ),
-            category = Category(categoryId, categoryName,"" ,categoryImageUrl, totalProducts)
+            category = Category(categoryId, categoryName, "", categoryImageUrl, totalProducts)
         )
     }
 

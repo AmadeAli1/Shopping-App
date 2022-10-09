@@ -1,5 +1,6 @@
 package com.amade.dev.shoppingapp.controller
 
+import com.amade.dev.shoppingapp.model.user.DeliveryLocation
 import com.amade.dev.shoppingapp.model.user.User
 import com.amade.dev.shoppingapp.model.user.dto.UserDTO
 import com.amade.dev.shoppingapp.service.user.UserService
@@ -30,10 +31,16 @@ class UserController(
 
     @PutMapping("/updateToken")
     suspend fun updateToken(
-        @RequestParam("token", required = true,) token: String,
+        @RequestParam("token", required = true) token: String,
         @RequestParam("userId", required = true) userId: String,
     ): ResponseEntity<ApiResponse<Boolean>> {
         return ResponseEntity(service.updateToken(token, userId), HttpStatus.OK)
     }
 
+    @PostMapping("/delivery-location")
+    suspend fun updateDeliveryLocation(
+        @RequestBody @Valid location: DeliveryLocation,
+    ): DeliveryLocation {
+        return service.updateDelivery(location)
+    }
 }

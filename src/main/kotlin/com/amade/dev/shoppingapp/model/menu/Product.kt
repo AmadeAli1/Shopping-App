@@ -1,6 +1,7 @@
 package com.amade.dev.shoppingapp.model.menu
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
@@ -18,7 +19,8 @@ data class Product(
     @Column("deliveryState") val deliveryState: State? = State.Available,
     @field:NotBlank @Column("name") val name: String,
     @field:NotNull @field:Positive @Column("price") val price: Float,
-    @Column("likes") val likes: Int,
+    @field:JsonProperty(access = JsonProperty.Access.READ_ONLY) @Column("likes") val likes: Int,
+    @field:JsonProperty(access = JsonProperty.Access.READ_ONLY) @Column("unlikes") val unlikes: Int,//TODO
     @field:JsonIgnore @Column("imageUrl") val path: String? = null,
     @field:NotBlank @Column("description") val description: String,
     @field:NotNull @Column("categoryId") val categoryId: Int,
@@ -38,9 +40,12 @@ data class Product(
         name = "",
         price = -1f,
         likes = 0,
+        unlikes = 0,//TODO
         description = "",
-        categoryId = -1, companyId = null
-    )
+        categoryId = -1,
+        companyId = null,
+
+        )
 
     enum class State {
         Available,
@@ -49,6 +54,12 @@ data class Product(
 
     @Table("UserProductLike")
     data class Like(
+        @field:NotBlank @Column("userId") val userId: String,
+        @field:NotNull @Column("productId") val productId: UUID,
+    ) {}
+
+    @Table("UserProductUntLike")
+    data class UnLike(
         @field:NotBlank @Column("userId") val userId: String,
         @field:NotNull @Column("productId") val productId: UUID,
     ) {}

@@ -1,6 +1,7 @@
 package com.amade.dev.shoppingapp.service.user
 
 import com.amade.dev.shoppingapp.exception.ApiException
+import com.amade.dev.shoppingapp.model.user.DeliveryLocation
 import com.amade.dev.shoppingapp.model.user.User
 import com.amade.dev.shoppingapp.model.user.dto.UserDTO
 import com.amade.dev.shoppingapp.repository.user.DeliveryLocationRepository
@@ -77,5 +78,14 @@ class UserService(
     private suspend fun findById(id: String) = userRepository.findById(id)
 
     private suspend fun getLocationDelivery(userId: String) = locationRepository.findByUserId(userId)
+    suspend fun updateDelivery(location: DeliveryLocation): DeliveryLocation {
+        val dl = locationRepository.findByUserId(location.userId)
+        if (dl != null) {
+            val deliveryLocation =
+                dl.copy(latitude = location.latitude, longitude = location.longitude, name = location.name)
+            return locationRepository.save(deliveryLocation)
+        }
+        return locationRepository.save(entity = location)
+    }
 
 }

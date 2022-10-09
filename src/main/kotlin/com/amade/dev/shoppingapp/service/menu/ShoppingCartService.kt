@@ -47,7 +47,7 @@ class ShoppingCartService(
             val next = (data.size == 20).and(total > page * 20)
             return@config pageConfiguration.getPage(
                 data = data,
-                paginas = pages,
+                pages = pages,
                 totalItems = total,
                 page = page,
                 hasNext = next
